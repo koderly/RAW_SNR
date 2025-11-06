@@ -6,6 +6,7 @@ including Canon CR2, generic RAW files, and standard image formats like PNG and 
 """
 
 import os
+import warnings
 import numpy as np
 from typing import Union, Tuple, Optional
 
@@ -123,7 +124,10 @@ def load_raw_image(filepath: str, return_rgb: bool = False) -> Union[np.ndarray,
     elif ext == '.raw':
         # Generic RAW files don't have a standard format
         # We'll load the raw binary data and let the user interpret it
-        print(f"Warning: Loading generic .raw file. You may need to reshape the data manually.")
+        warnings.warn(
+            f"Loading generic .raw file. You may need to reshape the data manually.",
+            UserWarning
+        )
         try:
             raw_data = np.fromfile(filepath, dtype=np.uint16)
             return raw_data
@@ -141,13 +145,19 @@ def get_bayer_channels(raw_image: np.ndarray, bayer_pattern: np.ndarray) -> dict
     """
     Extract individual Bayer color channels from a raw image.
     
+    This function assumes an RGGB Bayer pattern layout where:
+    - Pattern value 0 = Red
+    - Pattern value 1 or 3 = Green
+    - Pattern value 2 = Blue
+    
     Parameters
     ----------
     raw_image : np.ndarray
         The raw Bayer pattern image (2D array).
     bayer_pattern : np.ndarray
         The Bayer pattern array (typically 2x2) indicating which color is at each position.
-        Common patterns: [[0,1],[1,2]] for RGGB where 0=R, 1=G, 2=B.
+        Note: Currently this function assumes RGGB pattern. The parameter is provided
+        for future extensibility.
         
     Returns
     -------
@@ -159,11 +169,18 @@ def get_bayer_channels(raw_image: np.ndarray, bayer_pattern: np.ndarray) -> dict
     >>> raw_image, metadata = load_raw_image('image.cr2', return_rgb=False)
     >>> channels = get_bayer_channels(raw_image, metadata['raw_pattern'])
     >>> print(channels['R'].shape)
+    
+    Notes
+    -----
+    The function currently assumes an RGGB Bayer pattern. For other patterns,
+    manual channel extraction may be needed.
     """
     h, w = raw_image.shape
     
-    # Extract channels based on Bayer pattern
-    # Assuming RGGB pattern: [[0,1],[1,2]]
+    # Extract channels based on RGGB Bayer pattern
+    # Pattern layout:
+    # [0, 1]    [R, G1]
+    # [3, 2] or [G2, B]
     R = raw_image[0:h:2, 0:w:2]
     G1 = raw_image[0:h:2, 1:w:2]
     G2 = raw_image[1:h:2, 0:w:2]

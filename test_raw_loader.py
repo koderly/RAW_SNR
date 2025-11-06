@@ -7,6 +7,7 @@ found in the repository.
 """
 
 import os
+import tempfile
 from raw_loader import load_raw_image, get_bayer_channels
 
 
@@ -121,7 +122,6 @@ def test_error_handling():
         print(f"✗ Unexpected error: {e}")
     
     # Test unsupported format (create a temporary file with unsupported extension)
-    import tempfile
     try:
         with tempfile.NamedTemporaryFile(suffix='.unsupported', delete=False) as f:
             temp_path = f.name
