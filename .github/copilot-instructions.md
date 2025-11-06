@@ -112,7 +112,7 @@ npm install react recharts
 
 ## Important Notes
 
-- **File Paths**: Some scripts contain hardcoded absolute paths (e.g., `/Users/danijelmaricic/...`). Use relative paths or make paths configurable when modifying these files.
+- **File Paths**: Some scripts contain hardcoded absolute paths (e.g., `/Users/[username]/...`). Use relative paths or make paths configurable when modifying these files.
 - **Large Files**: The repository contains large RAW image files (.cr2, .raw). Be mindful of repository size when adding new sample images.
 - **Notebooks**: Jupyter notebook files (.ipynb) are version controlled. Clear outputs before committing if they're large.
 
